@@ -1,0 +1,3048 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>个人创意作品集</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Supabase SDK -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', 'Microsoft YaHei', sans-serif;
+        }
+        
+        /* ============================================
+           主题变量定义
+           ============================================ */
+        
+        :root {
+            --primary-color: #6366f1;
+            --secondary-color: #f8fafc;
+            --accent-color: #8b5cf6;
+            --light-gray: #e2e8f0;
+            --dark-gray: #64748b;
+            --text-dark: #1e293b;
+            --text-light: #64748b;
+            --card-shadow: 0 4px 20px rgba(99, 102, 241, 0.08);
+            --transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            --card-bg: #ffffff;
+            --header-bg: transparent;
+            --panel-bg: #ffffff;
+            --input-bg: #ffffff;
+            --overlay-bg: rgba(0, 0, 0, 0.5);
+            --gradient-bg: linear-gradient(135deg, #f8fafc 0%, #e0e7ff 50%, #fce7f3 100%);
+            --card-glow: none;
+            --gold-accent: transparent;
+            --border-radius: 16px;
+        }
+        
+        body.theme-dark {
+            --primary-color: #818cf8;
+            --secondary-color: #0f172a;
+            --accent-color: #a78bfa;
+            --light-gray: #1e293b;
+            --dark-gray: #94a3b8;
+            --text-dark: #f1f5f9;
+            --text-light: #94a3b8;
+            --card-shadow: 0 4px 30px rgba(0, 0, 0, 0.4);
+            --card-bg: rgba(30, 41, 59, 0.8);
+            --header-bg: transparent;
+            --panel-bg: #1e293b;
+            --input-bg: #0f172a;
+            --overlay-bg: rgba(0, 0, 0, 0.8);
+            --gradient-bg: linear-gradient(135deg, #0f172a 0%, #1e1b4b 50%, #312e81 100%);
+            --card-glow: 0 0 30px rgba(139, 92, 246, 0.3);
+            --gold-accent: #c4b5fd;
+            --border-radius: 16px;
+        }
+        
+        body.theme-grand {
+            --primary-color: #1a1a2e;
+            --secondary-color: #16213e;
+            --accent-color: #e94560;
+            --light-gray: #2a2a4a;
+            --dark-gray: #8a8aaa;
+            --text-dark: #ffffff;
+            --text-light: #b0b0d0;
+            --card-shadow: 0 8px 32px rgba(233, 69, 96, 0.2);
+            --card-bg: rgba(26, 26, 46, 0.9);
+            --header-bg: transparent;
+            --panel-bg: #1a1a2e;
+            --input-bg: #16213e;
+            --overlay-bg: rgba(0, 0, 0, 0.85);
+            --gradient-bg: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+            --card-glow: 0 0 20px rgba(233, 69, 96, 0.3);
+            --gold-accent: #ffd700;
+            --border-radius: 12px;
+        }
+        
+        body.theme-fashion {
+            --primary-color: #2d2d2d;
+            --secondary-color: #ffffff;
+            --accent-color: #ff6b6b;
+            --light-gray: #f0f0f0;
+            --dark-gray: #666666;
+            --text-dark: #333333;
+            --text-light: #888888;
+            --card-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+            --card-bg: #ffffff;
+            --header-bg: transparent;
+            --panel-bg: #ffffff;
+            --input-bg: #f8f8f8;
+            --overlay-bg: rgba(0, 0, 0, 0.6);
+            --gradient-bg: none;
+            --card-glow: none;
+            --gold-accent: transparent;
+            --border-radius: 20px;
+        }
+        
+        body.theme-fresh {
+            --primary-color: #059669;
+            --secondary-color: #ecfdf5;
+            --accent-color: #10b981;
+            --light-gray: #d1fae5;
+            --dark-gray: #047857;
+            --text-dark: #064e3b;
+            --text-light: #059669;
+            --card-shadow: 0 4px 20px rgba(16, 185, 129, 0.15);
+            --card-bg: #ffffff;
+            --header-bg: transparent;
+            --panel-bg: #ffffff;
+            --input-bg: #ffffff;
+            --overlay-bg: rgba(0, 0, 0, 0.5);
+            --gradient-bg: linear-gradient(135deg, #ecfdf5 0%, #d1fae5 50%, #a7f3d0 100%);
+            --card-glow: 0 0 20px rgba(16, 185, 129, 0.2);
+            --gold-accent: transparent;
+            --border-radius: 16px;
+        }
+        
+        body.theme-retro {
+            --primary-color: #92400e;
+            --secondary-color: #fef3c7;
+            --accent-color: #d97706;
+            --light-gray: #fde68a;
+            --dark-gray: #b45309;
+            --text-dark: #451a03;
+            --text-light: #92400e;
+            --card-shadow: 0 4px 20px rgba(146, 64, 14, 0.15);
+            --card-bg: #fffbeb;
+            --header-bg: transparent;
+            --panel-bg: #fffbeb;
+            --input-bg: #fef3c7;
+            --overlay-bg: rgba(69, 26, 3, 0.6);
+            --gradient-bg: linear-gradient(135deg, #fef3c7 0%, #fde68a 50%, #fcd34d 100%);
+            --card-glow: none;
+            --gold-accent: #f59e0b;
+            --border-radius: 12px;
+        }
+        
+        body.theme-sunset {
+            --primary-color: #dc2626;
+            --secondary-color: #fef2f2;
+            --accent-color: #f97316;
+            --light-gray: #fed7aa;
+            --dark-gray: #ea580c;
+            --text-dark: #7c2d12;
+            --text-light: #dc2626;
+            --card-shadow: 0 4px 20px rgba(249, 115, 22, 0.2);
+            --card-bg: #ffffff;
+            --header-bg: transparent;
+            --panel-bg: #ffffff;
+            --input-bg: #fef2f2;
+            --overlay-bg: rgba(124, 45, 18, 0.6);
+            --gradient-bg: linear-gradient(135deg, #fef2f2 0%, #fecaca 50%, #fca5a5 100%);
+            --card-glow: 0 0 25px rgba(249, 115, 22, 0.3);
+            --gold-accent: #fbbf24;
+            --border-radius: 16px;
+        }
+        
+        body {
+            background: var(--gradient-bg);
+            background-attachment: fixed;
+            color: var(--text-dark);
+            line-height: 1.6;
+            min-height: 100vh;
+            padding: 20px;
+            max-width: 1500px;
+            margin: 0 auto;
+            transition: background 0.5s ease, color 0.5s ease;
+        }
+        
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: 
+                radial-gradient(circle at 10% 20%, rgba(99, 102, 241, 0.08) 0%, transparent 40%),
+                radial-gradient(circle at 90% 80%, rgba(139, 92, 246, 0.08) 0%, transparent 40%),
+                radial-gradient(circle at 50% 50%, rgba(16, 185, 129, 0.05) 0%, transparent 50%);
+            pointer-events: none;
+            z-index: 0;
+            animation: bgFloat 20s ease-in-out infinite;
+        }
+        
+        body.theme-dark::before {
+            background: 
+                radial-gradient(circle at 10% 20%, rgba(139, 92, 246, 0.15) 0%, transparent 40%),
+                radial-gradient(circle at 90% 80%, rgba(99, 102, 241, 0.1) 0%, transparent 40%);
+        }
+        
+        @keyframes bgFloat {
+            0%, 100% { transform: scale(1) rotate(0deg); }
+            50% { transform: scale(1.05) rotate(1deg); }
+        }
+        
+        body > * {
+            position: relative;
+            z-index: 1;
+        }
+        
+        .header {
+            text-align: center;
+            padding: 60px 20px 40px;
+            margin-bottom: 30px;
+            animation: fadeInDown 0.8s ease-out;
+            position: relative;
+            background: var(--header-bg);
+        }
+        
+        .site-title {
+            font-size: 3.5rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, var(--primary-color), var(--accent-color));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            letter-spacing: 3px;
+            margin-bottom: 15px;
+            transition: all 0.5s ease;
+            position: relative;
+            display: inline-block;
+        }
+        
+        .site-title::after {
+            content: '';
+            position: absolute;
+            bottom: -5px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 60px;
+            height: 4px;
+            background: linear-gradient(90deg, var(--primary-color), var(--accent-color));
+            border-radius: 2px;
+        }
+        
+        .site-subtitle {
+            font-size: 1.3rem;
+            color: var(--dark-gray);
+            font-weight: 400;
+            max-width: 600px;
+            margin: 20px auto 0;
+            opacity: 0.9;
+        }
+        
+        .header-toolbar {
+            position: absolute;
+            top: 30px;
+            right: 30px;
+            display: flex;
+            gap: 15px;
+            align-items: center;
+        }
+        
+        .search-container {
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+        
+        .search-input {
+            width: 0;
+            padding: 12px 0;
+            border: none;
+            background: transparent;
+            font-size: 1rem;
+            color: var(--text-dark);
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            opacity: 0;
+        }
+        
+        .search-container.active .search-input {
+            width: 240px;
+            padding: 12px 20px;
+            border: 2px solid var(--light-gray);
+            border-radius: 30px;
+            background: var(--input-bg);
+            opacity: 1;
+        }
+        
+        .search-input:focus {
+            outline: none;
+            border-color: var(--accent-color);
+            box-shadow: 0 0 20px rgba(139, 92, 246, 0.2);
+        }
+        
+        .search-btn, .settings-btn {
+            background: linear-gradient(135deg, var(--primary-color), var(--accent-color));
+            border: none;
+            color: white;
+            font-size: 1rem;
+            cursor: pointer;
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: var(--transition);
+            box-shadow: 0 4px 15px rgba(99, 102, 241, 0.3);
+        }
+        
+        .search-btn:hover, .settings-btn:hover {
+            transform: scale(1.1) rotate(15deg);
+            box-shadow: 0 6px 25px rgba(99, 102, 241, 0.4);
+        }
+        
+        .settings-btn:hover {
+            transform: scale(1.1) rotate(90deg);
+        }
+        
+        .settings-panel {
+            position: fixed;
+            top: 0;
+            right: -450px;
+            width: 420px;
+            height: 100vh;
+            background-color: var(--panel-bg);
+            box-shadow: -10px 0 40px rgba(0, 0, 0, 0.15);
+            padding: 40px 30px;
+            z-index: 1000;
+            transition: right 0.4s cubic-bezier(0.4, 0, 0.2, 1), background-color 0.5s ease;
+            overflow-y: auto;
+            backdrop-filter: blur(10px);
+        }
+        
+        .settings-panel.active {
+            right: 0;
+        }
+        
+        .settings-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 35px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid var(--light-gray);
+        }
+        
+        .settings-title {
+            font-size: 1.6rem;
+            color: var(--primary-color);
+            font-weight: 700;
+        }
+        
+        .close-settings {
+            background: linear-gradient(135deg, var(--primary-color), var(--accent-color));
+            border: none;
+            font-size: 1.2rem;
+            color: white;
+            cursor: pointer;
+            width: 45px;
+            height: 45px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            transition: var(--transition);
+        }
+        
+        .close-settings:hover {
+            transform: rotate(90deg) scale(1.1);
+        }
+        
+        .setting-group {
+            margin-bottom: 30px;
+        }
+        
+        .setting-label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 12px;
+            color: var(--text-dark);
+            font-size: 1.05rem;
+        }
+        
+        .setting-input {
+            width: 100%;
+            padding: 14px 18px;
+            border: 2px solid var(--light-gray);
+            border-radius: 12px;
+            font-size: 1rem;
+            background: var(--input-bg);
+            color: var(--text-dark);
+            transition: var(--transition);
+        }
+        
+        .setting-input:focus {
+            outline: none;
+            border-color: var(--accent-color);
+            box-shadow: 0 0 0 4px rgba(139, 92, 246, 0.15);
+        }
+        
+        .theme-selector {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+            margin-top: 12px;
+        }
+        
+        .theme-option {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 18px 12px;
+            border: 3px solid var(--light-gray);
+            border-radius: 14px;
+            cursor: pointer;
+            transition: var(--transition);
+            background: var(--card-bg);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .theme-option::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+            transition: left 0.5s ease;
+        }
+        
+        .theme-option:hover::before {
+            left: 100%;
+        }
+        
+        .theme-option:hover {
+            border-color: var(--accent-color);
+            transform: translateY(-4px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.12);
+        }
+        
+        .theme-option.active {
+            border-color: var(--accent-color);
+            box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.2), 0 8px 25px rgba(0, 0, 0, 0.12);
+        }
+        
+        .theme-preview {
+            display: flex;
+            gap: 5px;
+            margin-bottom: 10px;
+        }
+        
+        .theme-preview-color {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            border: 2px solid rgba(0,0,0,0.1);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        
+        .theme-name {
+            font-size: 0.9rem;
+            color: var(--text-dark);
+            font-weight: 600;
+        }
+        
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        
+        .checkbox-group input[type="checkbox"] {
+            width: 20px;
+            height: 20px;
+            margin-right: 10px;
+            cursor: pointer;
+            accent-color: var(--accent-color);
+        }
+        
+        .checkbox-group label {
+            cursor: pointer;
+            color: var(--text-dark);
+        }
+        
+        .setting-btn {
+            width: 100%;
+            padding: 16px;
+            border: none;
+            border-radius: 14px;
+            font-size: 1.05rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            background: linear-gradient(135deg, var(--primary-color), var(--accent-color));
+            color: white;
+            box-shadow: 0 4px 15px rgba(99, 102, 241, 0.3);
+            margin-top: 15px;
+        }
+        
+        .setting-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(99, 102, 241, 0.4);
+        }
+        
+        .setting-btn.secondary {
+            background: linear-gradient(135deg, var(--light-gray), #cbd5e1);
+            color: var(--text-dark);
+            box-shadow: none;
+        }
+        
+        .setting-btn.secondary:hover {
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+        
+        .setting-btn.danger {
+            background: linear-gradient(135deg, #ef4444, #dc2626);
+            box-shadow: 0 4px 15px rgba(239, 68, 68, 0.3);
+        }
+        
+        .setting-btn.danger:hover {
+            box-shadow: 0 8px 25px rgba(239, 68, 68, 0.4);
+        }
+        
+        /* 密码输入遮罩 */
+        .password-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: var(--overlay-bg);
+            z-index: 6000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            visibility: hidden;
+            transition: var(--transition);
+            backdrop-filter: blur(5px);
+        }
+        
+        .password-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+        
+        .password-dialog {
+            background: var(--panel-bg);
+            padding: 40px;
+            border-radius: 24px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            text-align: center;
+            animation: modalIn 0.3s ease;
+            width: 90%;
+            max-width: 380px;
+        }
+        
+        @keyframes modalIn {
+            from { transform: scale(0.9); opacity: 0; }
+            to { transform: scale(1); opacity: 1; }
+        }
+        
+        .password-title {
+            font-size: 1.5rem;
+            color: var(--primary-color);
+            margin-bottom: 25px;
+            font-weight: 700;
+        }
+        
+        .password-input-group {
+            margin-bottom: 25px;
+        }
+        
+        .password-input {
+            width: 100%;
+            padding: 18px;
+            border: 3px solid var(--light-gray);
+            border-radius: 14px;
+            font-size: 1.5rem;
+            text-align: center;
+            letter-spacing: 8px;
+            background: var(--input-bg);
+            color: var(--text-dark);
+            transition: var(--transition);
+        }
+        
+        .password-input:focus {
+            outline: none;
+            border-color: var(--accent-color);
+            box-shadow: 0 0 0 4px rgba(139, 92, 246, 0.15);
+        }
+        
+        .password-error {
+            color: #ef4444;
+            font-size: 0.9rem;
+            margin-top: 10px;
+            min-height: 20px;
+        }
+        
+        .password-actions {
+            display: flex;
+            gap: 15px;
+        }
+        
+        .password-btn {
+            flex: 1;
+            padding: 14px;
+            border: none;
+            border-radius: 12px;
+            font-size: 1.05rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+        
+        .password-btn.cancel {
+            background: var(--light-gray);
+            color: var(--text-dark);
+        }
+        
+        .password-btn.confirm {
+            background: linear-gradient(135deg, var(--primary-color), var(--accent-color));
+            color: white;
+            box-shadow: 0 4px 15px rgba(99, 102, 241, 0.3);
+        }
+        
+        .password-btn:hover {
+            transform: translateY(-2px);
+        }
+        
+        /* 导航 */
+        .nav-container {
+            margin-bottom: 35px;
+            animation: fadeInUp 0.6s ease-out 0.2s both;
+        }
+        
+        .nav-primary {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .nav-btn {
+            padding: 12px 28px;
+            border: 2px solid var(--light-gray);
+            border-radius: 30px;
+            background: var(--card-bg);
+            color: var(--text-dark);
+            font-size: 1.05rem;
+            cursor: pointer;
+            transition: var(--transition);
+            font-weight: 500;
+        }
+        
+        .nav-btn.active {
+            background: linear-gradient(135deg, var(--primary-color), var(--accent-color));
+            color: white;
+            border-color: transparent;
+            box-shadow: 0 4px 15px rgba(99, 102, 241, 0.3);
+        }
+        
+        .toolbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+        
+        .category-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        
+        .category-tag {
+            padding: 8px 18px;
+            border: 2px solid var(--light-gray);
+            border-radius: 20px;
+            background: var(--card-bg);
+            color: var(--text-dark);
+            font-size: 0.95rem;
+            cursor: pointer;
+            transition: var(--transition);
+            font-weight: 500;
+        }
+        
+        .category-tag:hover, .category-tag.active {
+            background: linear-gradient(135deg, var(--primary-color), var(--accent-color));
+            color: white;
+            border-color: transparent;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(99, 102, 241, 0.3);
+        }
+        
+        .category-tag.add-custom {
+            border-style: dashed;
+            color: var(--accent-color);
+        }
+        
+        .category-tag.add-custom:hover {
+            background: linear-gradient(135deg, var(--primary-color), var(--accent-color));
+            color: white;
+            border-style: solid;
+        }
+        
+        .sort-container {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .sort-label {
+            color: var(--text-dark);
+            font-weight: 500;
+        }
+        
+        .sort-select {
+            padding: 10px 18px;
+            border: 2px solid var(--light-gray);
+            border-radius: 12px;
+            background: var(--input-bg);
+            color: var(--text-dark);
+            font-size: 0.95rem;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+        
+        .sort-select:focus {
+            outline: none;
+            border-color: var(--accent-color);
+        }
+        
+        .content-area {
+            padding: 0 10px 60px;
+            animation: fadeInUp 0.6s ease-out 0.4s both;
+        }
+        
+        .works-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+            gap: 35px;
+        }
+        
+        .work-card {
+            background-color: var(--card-bg);
+            border-radius: var(--border-radius);
+            overflow: hidden;
+            box-shadow: var(--card-shadow);
+            transition: var(--transition);
+            animation: fadeInUp 0.6s ease-out;
+            animation-fill-mode: both;
+            opacity: 0;
+            position: relative;
+            cursor: pointer;
+        }
+        
+        .work-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, var(--primary-color), var(--accent-color), var(--primary-color));
+            background-size: 200% 100%;
+            animation: gradientMove 3s linear infinite;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        
+        @keyframes gradientMove {
+            0% { background-position: 0% 0%; }
+            100% { background-position: 200% 0%; }
+        }
+        
+        .work-card:hover::before {
+            opacity: 1;
+        }
+        
+        body.theme-grand .work-card {
+            box-shadow: var(--card-glow), var(--card-shadow);
+            border: 1px solid rgba(233, 69, 96, 0.2);
+        }
+        
+        .work-card:hover {
+            transform: translateY(-12px);
+            box-shadow: 0 20px 40px rgba(99, 102, 241, 0.15), 0 0 0 1px rgba(99, 102, 241, 0.1);
+        }
+        
+        body.theme-grand .work-card:hover {
+            box-shadow: 0 0 40px rgba(233, 69, 96, 0.4), 0 20px 40px rgba(0, 0, 0, 0.2);
+        }
+        
+        body.theme-dark .work-card:hover {
+            box-shadow: 0 0 40px rgba(139, 92, 246, 0.3), 0 20px 40px rgba(0, 0, 0, 0.3);
+        }
+        
+        .work-preview {
+            height: 220px;
+            position: relative;
+            overflow: hidden;
+            background-color: var(--light-gray);
+        }
+        
+        .work-preview::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 60px;
+            background: linear-gradient(to top, rgba(0,0,0,0.3), transparent);
+            pointer-events: none;
+        }
+        
+        .work-preview img, .work-preview video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+            transition: transform 0.5s ease;
+        }
+        
+        .work-card:hover .work-preview img, .work-card:hover .work-preview video {
+            transform: scale(1.08);
+        }
+        
+        .document-preview {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 25px;
+            background: linear-gradient(135deg, var(--light-gray) 0%, var(--card-bg) 100%);
+        }
+        
+        .document-preview i {
+            font-size: 3.5rem;
+            background: linear-gradient(135deg, var(--primary-color), var(--accent-color));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 15px;
+        }
+        
+        .document-preview .doc-title {
+            font-size: 1.1rem;
+            color: var(--primary-color);
+            text-align: center;
+            font-weight: 600;
+        }
+        
+        .work-info {
+            padding: 25px;
+        }
+        
+        .work-category {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 0.85rem;
+            color: var(--accent-color);
+            background: linear-gradient(135deg, rgba(99, 102, 241, 0.1), rgba(139, 92, 246, 0.1));
+            padding: 6px 14px;
+            border-radius: 20px;
+            margin-bottom: 15px;
+            cursor: pointer;
+            transition: var(--transition);
+            font-weight: 500;
+        }
+        
+        .work-category:hover {
+            background: linear-gradient(135deg, var(--primary-color), var(--accent-color));
+            color: white;
+            transform: translateX(5px);
+        }
+        
+        .work-title-input {
+            width: 100%;
+            border: none;
+            border-bottom: 2px solid var(--light-gray);
+            font-size: 1.35rem;
+            font-weight: 600;
+            color: var(--text-dark);
+            padding: 8px 0;
+            margin-bottom: 15px;
+            background: transparent;
+            transition: var(--transition);
+        }
+        
+        .work-title-input:focus {
+            outline: none;
+            border-bottom-color: var(--accent-color);
+            border-bottom-width: 3px;
+        }
+        
+        .work-description {
+            color: var(--text-light);
+            font-size: 0.95rem;
+            margin-bottom: 15px;
+            line-height: 1.7;
+        }
+        
+        .work-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.9rem;
+            color: var(--text-light);
+            padding-top: 15px;
+            border-top: 1px dashed var(--light-gray);
+        }
+        
+        .work-meta span:last-child {
+            background: linear-gradient(135deg, var(--primary-color), var(--accent-color));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            font-weight: 600;
+        }
+        
+        .work-controls {
+            display: flex;
+            justify-content: flex-end;
+            padding: 15px 25px 25px;
+            gap: 12px;
+        }
+        
+        .icon-btn {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            border: none;
+            background: linear-gradient(135deg, var(--light-gray), #e2e8f0);
+            color: var(--dark-gray);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+        
+        .icon-btn:hover {
+            background: linear-gradient(135deg, var(--primary-color), var(--accent-color));
+            color: white;
+            transform: scale(1.15) rotate(10deg);
+            box-shadow: 0 6px 20px rgba(99, 102, 241, 0.4);
+        }
+        
+        .icon-btn.delete-btn:hover {
+            background: linear-gradient(135deg, #ef4444, #dc2626);
+            box-shadow: 0 6px 20px rgba(239, 68, 68, 0.4);
+        }
+        
+        .upload-section {
+            background-color: var(--card-bg);
+            border-radius: var(--border-radius);
+            padding: 40px;
+            margin-bottom: 40px;
+            box-shadow: var(--card-shadow);
+            transition: background-color 0.5s ease, box-shadow 0.3s ease;
+            border: 2px dashed var(--light-gray);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .upload-section::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(45deg, transparent 40%, rgba(99, 102, 241, 0.03) 50%, transparent 60%);
+            animation: shine 3s linear infinite;
+            pointer-events: none;
+        }
+        
+        @keyframes shine {
+            0% { transform: translateX(-100%) rotate(45deg); }
+            100% { transform: translateX(100%) rotate(45deg); }
+        }
+        
+        .upload-title {
+            font-size: 1.7rem;
+            color: var(--primary-color);
+            margin-bottom: 25px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-weight: 700;
+        }
+        
+        .upload-title i {
+            background: linear-gradient(135deg, var(--primary-color), var(--accent-color));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .upload-options {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+            gap: 25px;
+        }
+        
+        .upload-option {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 30px 20px;
+            border: 2px dashed var(--light-gray);
+            border-radius: 16px;
+            cursor: pointer;
+            transition: var(--transition);
+            background: transparent;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .upload-option::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, rgba(99, 102, 241, 0.05), rgba(139, 92, 246, 0.05));
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        
+        .upload-option:hover {
+            border-color: var(--accent-color);
+            border-style: solid;
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(99, 102, 241, 0.15);
+        }
+        
+        .upload-option:hover::before {
+            opacity: 1;
+        }
+        
+        .upload-option i {
+            font-size: 3rem;
+            background: linear-gradient(135deg, var(--primary-color), var(--accent-color));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 15px;
+            transition: transform 0.3s ease;
+        }
+        
+        .upload-option:hover i {
+            transform: scale(1.15);
+        }
+        
+        .upload-option h3 {
+            color: var(--text-dark);
+            font-size: 1.1rem;
+            margin-bottom: 8px;
+            font-weight: 600;
+        }
+        
+        .upload-option p {
+            color: var(--text-light);
+            font-size: 0.9rem;
+        }
+        
+        .custom-category-dialog {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) scale(0.9);
+            background: var(--panel-bg);
+            padding: 35px;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.25);
+            z-index: 3000;
+            width: 90%;
+            max-width: 420px;
+            display: none;
+            opacity: 0;
+            transition: var(--transition);
+        }
+        
+        .custom-category-dialog.active {
+            display: block;
+            animation: modalIn 0.3s ease forwards;
+        }
+        
+        .custom-category-title {
+            font-size: 1.4rem;
+            color: var(--primary-color);
+            margin-bottom: 25px;
+            text-align: center;
+            font-weight: 700;
+        }
+        
+        .custom-category-input {
+            width: 100%;
+            padding: 14px 18px;
+            border: 2px solid var(--light-gray);
+            border-radius: 12px;
+            font-size: 1.05rem;
+            background: var(--input-bg);
+            color: var(--text-dark);
+            margin-bottom: 25px;
+            transition: var(--transition);
+        }
+        
+        .custom-category-input:focus {
+            outline: none;
+            border-color: var(--accent-color);
+            box-shadow: 0 0 0 4px rgba(139, 92, 246, 0.15);
+        }
+        
+        .custom-category-actions {
+            display: flex;
+            gap: 15px;
+        }
+        
+        .custom-category-btn {
+            flex: 1;
+            padding: 14px;
+            border: none;
+            border-radius: 12px;
+            font-size: 1.05rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+        
+        .custom-category-btn.cancel {
+            background: var(--light-gray);
+            color: var(--text-dark);
+        }
+        
+        .custom-category-btn.confirm {
+            background: linear-gradient(135deg, var(--primary-color), var(--accent-color));
+            color: white;
+            box-shadow: 0 4px 15px rgba(99, 102, 241, 0.3);
+        }
+        
+        .custom-category-btn.confirm:hover {
+            box-shadow: 0 6px 25px rgba(99, 102, 241, 0.4);
+        }
+        
+        .image-preview-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.92);
+            z-index: 5000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+        }
+        
+        .image-preview-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+        
+        .image-preview-container {
+            position: relative;
+            max-width: 92vw;
+            max-height: 88vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            transform: scale(0.85);
+            transition: transform 0.3s ease;
+        }
+        
+        .image-preview-overlay.active .image-preview-container {
+            transform: scale(1);
+        }
+        
+        .image-preview-close {
+            position: absolute;
+            top: -55px;
+            right: 0;
+            background: rgba(255, 255, 255, 0.1);
+            border: none;
+            color: white;
+            font-size: 1.5rem;
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            cursor: pointer;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .image-preview-close:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: rotate(90deg);
+        }
+        
+        .image-preview-content {
+            max-width: 100%;
+            max-height: 70vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .image-preview-content img, .image-preview-content video {
+            max-width: 100%;
+            max-height: 70vh;
+            border-radius: 12px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+        }
+        
+        .image-preview-info {
+            text-align: center;
+            margin-top: 25px;
+            max-width: 700px;
+        }
+        
+        .image-preview-title {
+            font-size: 1.8rem;
+            color: white;
+            margin-bottom: 12px;
+            font-weight: 700;
+        }
+        
+        .image-preview-category {
+            display: inline-block;
+            background: rgba(255, 255, 255, 0.15);
+            color: white;
+            padding: 6px 18px;
+            border-radius: 20px;
+            font-size: 0.95rem;
+            margin-bottom: 15px;
+        }
+        
+        .image-preview-description {
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 1.1rem;
+            line-height: 1.7;
+        }
+        
+        .image-preview-hint {
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            color: rgba(255, 255, 255, 0.5);
+            font-size: 0.9rem;
+        }
+        
+        .image-preview-hint kbd {
+            background: rgba(255, 255, 255, 0.15);
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-family: inherit;
+        }
+        
+        /* 云端状态指示器 */
+        .cloud-status {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 4px 12px;
+            background: linear-gradient(135deg, rgba(16, 185, 129, 0.15), rgba(16, 185, 129, 0.1));
+            border-radius: 20px;
+            font-size: 0.85rem;
+            color: #10b981;
+            margin-left: 10px;
+        }
+        
+        .cloud-status.syncing {
+            background: linear-gradient(135deg, rgba(245, 158, 11, 0.15), rgba(245, 158, 11, 0.1));
+            color: #f59e0b;
+        }
+        
+        .cloud-status .dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: currentColor;
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.4; }
+        }
+        
+        /* 上传进度条 */
+        .upload-progress {
+            position: fixed;
+            bottom: 100px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--panel-bg);
+            padding: 20px 35px;
+            border-radius: 16px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+            z-index: 4000;
+            display: none;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .upload-progress.active {
+            display: flex;
+        }
+        
+        .upload-progress-bar {
+            width: 200px;
+            height: 8px;
+            background: var(--light-gray);
+            border-radius: 4px;
+            overflow: hidden;
+        }
+        
+        .upload-progress-fill {
+            height: 100%;
+            background: linear-gradient(135deg, var(--primary-color), var(--accent-color));
+            border-radius: 4px;
+            transition: width 0.3s ease;
+            width: 0%;
+        }
+        
+        .upload-progress-text {
+            color: var(--text-dark);
+            font-weight: 500;
+            min-width: 100px;
+        }
+        
+        /* 响应式 */
+        @media (max-width: 1024px) {
+            .site-title {
+                font-size: 2.8rem;
+            }
+            
+            .works-grid {
+                grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+                gap: 25px;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .site-title {
+                font-size: 2.4rem;
+            }
+            
+            .site-subtitle {
+                font-size: 1.1rem;
+            }
+            
+            .works-grid {
+                grid-template-columns: 1fr;
+                gap: 25px;
+            }
+            
+            .nav-btn {
+                padding: 10px 18px;
+                font-size: 1rem;
+            }
+            
+            .upload-options {
+                grid-template-columns: 1fr;
+            }
+            
+            .settings-panel {
+                width: 100%;
+                right: -100%;
+            }
+            
+            .header-toolbar {
+                right: 15px;
+                top: 20px;
+            }
+            
+            .search-container.active .search-input {
+                width: 180px;
+            }
+            
+            .theme-selector {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .upload-section {
+                padding: 25px;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            body {
+                padding: 12px;
+            }
+            
+            .works-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .header {
+                padding: 30px 10px 20px;
+            }
+            
+            .toolbar {
+                flex-direction: column;
+                gap: 15px;
+            }
+            
+            .site-title {
+                font-size: 2rem;
+            }
+            
+            .theme-selector {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        @keyframes fadeInDown {
+            from { opacity: 0; transform: translateY(-30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .work-card:nth-child(1) { animation-delay: 0.1s; }
+        .work-card:nth-child(2) { animation-delay: 0.15s; }
+        .work-card:nth-child(3) { animation-delay: 0.2s; }
+        .work-card:nth-child(4) { animation-delay: 0.25s; }
+        .work-card:nth-child(5) { animation-delay: 0.3s; }
+        .work-card:nth-child(6) { animation-delay: 0.35s; }
+        .work-card:nth-child(7) { animation-delay: 0.4s; }
+        .work-card:nth-child(8) { animation-delay: 0.45s; }
+        
+        .footer {
+            text-align: center;
+            padding: 40px 0;
+            color: var(--text-light);
+            font-size: 0.95rem;
+            border-top: 1px solid var(--light-gray);
+            margin-top: 30px;
+        }
+        
+        .footer i {
+            color: var(--accent-color);
+            animation: heartbeat 1.5s ease infinite;
+        }
+        
+        @keyframes heartbeat {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.2); }
+        }
+        
+        .empty-state {
+            text-align: center;
+            padding: 80px 25px;
+            color: var(--text-light);
+        }
+        
+        .empty-state i {
+            font-size: 4rem;
+            margin-bottom: 25px;
+            background: linear-gradient(135deg, var(--primary-color), var(--accent-color));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .empty-state h3 {
+            margin-bottom: 12px;
+            font-size: 1.5rem;
+        }
+        
+        .toast {
+            position: fixed;
+            bottom: 40px;
+            left: 50%;
+            transform: translateX(-50%) translateY(120px);
+            background: linear-gradient(135deg, var(--primary-color), var(--accent-color));
+            color: white;
+            padding: 16px 35px;
+            border-radius: 30px;
+            box-shadow: 0 8px 30px rgba(99, 102, 241, 0.4);
+            z-index: 4000;
+            opacity: 0;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            font-weight: 500;
+        }
+        
+        .toast.show {
+            transform: translateX(-50%) translateY(0);
+            opacity: 1;
+        }
+        
+        body.theme-grand .gold-accent {
+            color: var(--gold-accent);
+        }
+        
+        ::-webkit-scrollbar {
+            width: 10px;
+        }
+        
+        ::-webkit-scrollbar-track {
+            background: var(--light-gray);
+            border-radius: 5px;
+        }
+        
+        ::-webkit-scrollbar-thumb {
+            background: linear-gradient(135deg, var(--primary-color), var(--accent-color));
+            border-radius: 5px;
+        }
+        
+        ::-webkit-scrollbar-thumb:hover {
+            background: linear-gradient(135deg, var(--accent-color), var(--primary-color));
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <h1 class="site-title">个人创意作品集</h1>
+        <p class="site-subtitle">✨ 记录每一个灵感瞬间 <span class="cloud-status" id="cloudStatus"><span class="dot"></span> 云端已连接</span></p>
+        <div class="header-toolbar">
+            <div class="search-container" id="searchContainer">
+                <input type="text" class="search-input" id="searchInput" placeholder="搜索作品...">
+                <button class="search-btn" id="searchBtn" title="搜索">
+                    <i class="fas fa-search"></i>
+                </button>
+            </div>
+            <button class="settings-btn" id="settingsBtn" title="设置">
+                <i class="fas fa-cog"></i>
+            </button>
+        </div>
+    </header>
+    
+    <div class="settings-panel" id="settingsPanel">
+        <div class="settings-header">
+            <h2 class="settings-title">✨ 系统设置</h2>
+            <button class="close-settings" id="closeSettings">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        
+        <div class="setting-group">
+            <label class="setting-label">🎨 主题风格</label>
+            <div class="theme-selector">
+                <div class="theme-option active" data-theme="default">
+                    <div class="theme-preview">
+                        <div class="theme-preview-color" style="background: #6366f1;"></div>
+                        <div class="theme-preview-color" style="background: #8b5cf6;"></div>
+                        <div class="theme-preview-color" style="background: #f8fafc;"></div>
+                    </div>
+                    <span class="theme-name">星空紫</span>
+                </div>
+                <div class="theme-option" data-theme="dark">
+                    <div class="theme-preview">
+                        <div class="theme-preview-color" style="background: #0f172a;"></div>
+                        <div class="theme-preview-color" style="background: #818cf8;"></div>
+                        <div class="theme-preview-color" style="background: #1e293b;"></div>
+                    </div>
+                    <span class="theme-name">暗夜</span>
+                </div>
+                <div class="theme-option" data-theme="grand">
+                    <div class="theme-preview">
+                        <div class="theme-preview-color" style="background: #1a1a2e;"></div>
+                        <div class="theme-preview-color" style="background: #e94560;"></div>
+                        <div class="theme-preview-color" style="background: #16213e;"></div>
+                    </div>
+                    <span class="theme-name">大气</span>
+                </div>
+                <div class="theme-option" data-theme="fashion">
+                    <div class="theme-preview">
+                        <div class="theme-preview-color" style="background: #2d2d2d;"></div>
+                        <div class="theme-preview-color" style="background: #ff6b6b;"></div>
+                        <div class="theme-preview-color" style="background: #ffffff;"></div>
+                    </div>
+                    <span class="theme-name">时尚</span>
+                </div>
+                <div class="theme-option" data-theme="fresh">
+                    <div class="theme-preview">
+                        <div class="theme-preview-color" style="background: #059669;"></div>
+                        <div class="theme-preview-color" style="background: #10b981;"></div>
+                        <div class="theme-preview-color" style="background: #ecfdf5;"></div>
+                    </div>
+                    <span class="theme-name">清新</span>
+                </div>
+                <div class="theme-option" data-theme="retro">
+                    <div class="theme-preview">
+                        <div class="theme-preview-color" style="background: #92400e;"></div>
+                        <div class="theme-preview-color" style="background: #d97706;"></div>
+                        <div class="theme-preview-color" style="background: #fef3c7;"></div>
+                    </div>
+                    <span class="theme-name">复古</span>
+                </div>
+                <div class="theme-option" data-theme="sunset">
+                    <div class="theme-preview">
+                        <div class="theme-preview-color" style="background: #dc2626;"></div>
+                        <div class="theme-preview-color" style="background: #f97316;"></div>
+                        <div class="theme-preview-color" style="background: #fef2f2;"></div>
+                    </div>
+                    <span class="theme-name">日落</span>
+                </div>
+            </div>
+        </div>
+        
+        <div class="setting-group">
+            <label class="setting-label">🔐 密码保护设置</label>
+            <div class="checkbox-group">
+                <input type="checkbox" id="passwordProtection" checked>
+                <label for="passwordProtection">启用密码保护</label>
+            </div>
+            <p style="color: var(--text-light); font-size: 0.9rem; margin-top: 8px;">
+                添加/删除作品时需要输入密码
+            </p>
+        </div>
+        
+        <div class="setting-group">
+            <label class="setting-label" for="currentPassword">🔑 当前密码</label>
+            <input type="password" id="currentPassword" class="setting-input" placeholder="请输入当前4位数字密码" maxlength="4">
+        </div>
+        
+        <div class="setting-group">
+            <label class="setting-label" for="newPassword">🔄 新密码（4位数字）</label>
+            <input type="password" id="newPassword" class="setting-input" placeholder="请输入4位数字新密码" maxlength="4">
+        </div>
+        
+        <div class="setting-group">
+            <label class="setting-label" for="confirmPassword">✅ 确认新密码</label>
+            <input type="password" id="confirmPassword" class="setting-input" placeholder="请再次输入新密码" maxlength="4">
+        </div>
+        
+        <button class="setting-btn" id="savePassword">💾 保存密码设置</button>
+        
+        <div class="setting-group">
+            <label class="setting-label">📂 二级分类管理</label>
+            <p style="color: var(--text-light); font-size: 0.9rem; margin-top: 8px;">
+                点击作品卡片上的分类标签可以修改二级分类，或添加自定义分类
+            </p>
+        </div>
+        
+        <div class="setting-group">
+            <label class="setting-label">📦 数据管理</label>
+            <button class="setting-btn secondary" id="exportData">📤 导出数据备份</button>
+            <button class="setting-btn danger" id="clearData" style="margin-top: 12px;">🗑️ 清除所有数据</button>
+        </div>
+        
+        <div class="setting-group">
+            <label class="setting-label">📊 系统状态</label>
+            <div style="background: linear-gradient(135deg, rgba(99, 102, 241, 0.08), rgba(139, 92, 246, 0.08)); padding: 20px; border-radius: 14px;">
+                <p style="margin-bottom: 10px; color: var(--text-dark);">
+                    <strong>🔐 密码保护状态：</strong>
+                    <span id="passwordStatus" style="color: #10b981; font-weight: 600;">已启用</span>
+                </p>
+                <p style="margin-bottom: 10px; color: var(--text-dark);">
+                    <strong>🎨 当前主题：</strong>
+                    <span id="currentTheme" style="background: linear-gradient(135deg, var(--primary-color), var(--accent-color)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; font-weight: 600;">星空紫</span>
+                </p>
+                <p style="color: var(--text-light); font-size: 0.9rem;">
+                    📁 作品总数：<span id="worksCount" style="font-weight: 600; color: var(--accent-color);">0</span>
+                </p>
+                <p style="color: var(--text-light); font-size: 0.9rem; margin-top: 8px;">
+                    ☁️ 存储状态：<span id="storageStatus" style="font-weight: 600; color: #10b981;">云端 + 本地缓存</span>
+                </p>
+            </div>
+        </div>
+    </div>
+    
+    <div class="password-overlay" id="passwordOverlay">
+        <div class="password-dialog">
+            <h3 class="password-title" id="passwordDialogTitle">🔐 请输入密码</h3>
+            <div class="password-input-group">
+                <input type="password" id="passwordInput" class="password-input" placeholder="••••" maxlength="4" inputmode="numeric">
+                <div class="password-error" id="passwordError"></div>
+            </div>
+            <div class="password-actions">
+                <button class="password-btn cancel" id="cancelPassword">取消</button>
+                <button class="password-btn confirm" id="confirmPasswordBtn">确定</button>
+            </div>
+        </div>
+    </div>
+    
+    <div class="custom-category-dialog" id="customCategoryDialog">
+        <h3 class="custom-category-title">➕ 添加自定义分类</h3>
+        <input type="text" class="custom-category-input" id="customCategoryInput" placeholder="请输入新分类名称">
+        <div class="custom-category-actions">
+            <button class="custom-category-btn cancel" id="cancelCustomCategory">取消</button>
+            <button class="custom-category-btn confirm" id="confirmCustomCategory">确定</button>
+        </div>
+    </div>
+    
+    <div class="image-preview-overlay" id="imagePreviewOverlay">
+        <div class="image-preview-container">
+            <button class="image-preview-close" id="imagePreviewClose" title="关闭 (ESC)">
+                <i class="fas fa-times"></i>
+            </button>
+            <div class="image-preview-content" id="imagePreviewContent"></div>
+            <div class="image-preview-info" id="imagePreviewInfo">
+                <h2 class="image-preview-title" id="previewTitle"></h2>
+                <span class="image-preview-category" id="previewCategory"></span>
+                <p class="image-preview-description" id="previewDescription"></p>
+            </div>
+        </div>
+        <div class="image-preview-hint">
+            按 <kbd>ESC</kbd> 或点击空白处关闭
+        </div>
+    </div>
+    
+    <nav class="nav-container">
+        <div class="nav-primary">
+            <button class="nav-btn active" data-category="all">🌟 全部作品</button>
+        </div>
+        
+        <div class="toolbar">
+            <div class="category-tags" id="categoryTags">
+                <span class="category-tag active" data-category="all">全部</span>
+                <span class="category-tag" data-category="image">🖼️ 图像类</span>
+                <span class="category-tag" data-category="video">🎬 影音类</span>
+                <span class="category-tag" data-category="text">📝 文字类</span>
+                <span class="category-tag" data-category="award">🏆 获奖作品</span>
+                <span class="category-tag" data-category="other">📦 其他</span>
+                <span class="category-tag add-custom" id="addCustomCategory" title="添加自定义分类">
+                    <i class="fas fa-plus"></i> 自定义
+                </span>
+            </div>
+            
+            <div class="sort-container">
+                <span class="sort-label">排序：</span>
+                <select class="sort-select" id="sortSelect">
+                    <option value="date-desc">最新优先</option>
+                    <option value="date-asc">最早优先</option>
+                    <option value="name-asc">名称 A-Z</option>
+                    <option value="name-desc">名称 Z-A</option>
+                </select>
+            </div>
+        </div>
+    </nav>
+    
+    <section class="upload-section">
+        <h2 class="upload-title"><i class="fas fa-cloud-upload-alt"></i> 上传新作品</h2>
+        <p style="color: var(--text-light); margin-bottom: 20px; font-size: 0.95rem;">
+            📌 上传后文件将自动同步到云端存储
+        </p>
+        <div class="upload-options">
+            <div class="upload-option" data-type="image">
+                <i class="fas fa-image"></i>
+                <h3>图片/海报</h3>
+                <p>支持 JPG, PNG, GIF 格式</p>
+            </div>
+            <div class="upload-option" data-type="video">
+                <i class="fas fa-video"></i>
+                <h3>视频作品</h3>
+                <p>支持 MP4, MOV, AVI 格式</p>
+            </div>
+            <div class="upload-option" data-type="document">
+                <i class="fas fa-file-alt"></i>
+                <h3>文档/策划案</h3>
+                <p>支持 PDF, DOC, TXT 格式</p>
+            </div>
+        </div>
+    </section>
+    
+    <main class="content-area">
+        <div class="works-grid" id="worksGrid"></div>
+        
+        <div class="empty-state" id="emptyState" style="display: none;">
+            <i class="fas fa-folder-open"></i>
+            <h3>暂无作品</h3>
+            <p>点击上方上传区域添加您的第一个作品 ✨</p>
+        </div>
+    </main>
+    
+    <footer class="footer">
+        <p>Made with <i class="fas fa-heart"></i> | 数据已同步至云端</p>
+    </footer>
+
+    <div class="toast" id="toast"></div>
+    
+    <div class="upload-progress" id="uploadProgress">
+        <i class="fas fa-cloud-upload-alt" style="color: var(--accent-color); font-size: 1.5rem;"></i>
+        <div class="upload-progress-bar">
+            <div class="upload-progress-fill" id="uploadProgressFill"></div>
+        </div>
+        <span class="upload-progress-text" id="uploadProgressText">上传中...</span>
+    </div>
+    
+    <input type="file" id="fileInput" accept="image/*,video/*,.pdf,.doc,.docx,.txt" style="display: none;">
+    
+    <script>
+        // ============================================
+        // Supabase 配置
+        // ============================================
+        const SUPABASE_URL = 'https://jabyrieurhginpiqosvz.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImphYnlyaWV1cmhnaW5waXFvc3Z6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDk5Njg2OTMsImV4cCI6MjA2NTU0NDY5M30.zIO9X8vzDDNuTnDZtGYi3Q_XiF7hapJ_vw3bwcN0xhc';
+        const BUCKET_NAME = 'portfolio';
+        
+        let supabase = null;
+        let isCloudConnected = false;
+        
+        // 初始化 Supabase
+        async function initSupabase() {
+            try {
+                supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+                
+                // 测试连接
+                const { data, error } = await supabase.storage.listBuckets();
+                if (error) {
+                    console.warn('Supabase 连接失败:', error);
+                    updateCloudStatus(false);
+                    return false;
+                }
+                
+                // 检查 bucket 是否存在
+                const bucketExists = data.some(b => b.name === BUCKET_NAME);
+                if (!bucketExists) {
+                    console.warn('Storage Bucket "portfolio" 不存在，请先在 Supabase 后台创建');
+                    updateCloudStatus(false);
+                    return false;
+                }
+                
+                isCloudConnected = true;
+                updateCloudStatus(true);
+                console.log('✅ Supabase Storage 连接成功');
+                return true;
+            } catch (err) {
+                console.error('Supabase 初始化失败:', err);
+                updateCloudStatus(false);
+                return false;
+            }
+        }
+        
+        function updateCloudStatus(connected) {
+            const cloudStatus = document.getElementById('cloudStatus');
+            if (connected) {
+                cloudStatus.innerHTML = '<span class="dot"></span> 云端已连接';
+                cloudStatus.style.color = '#10b981';
+                cloudStatus.style.background = 'linear-gradient(135deg, rgba(16, 185, 129, 0.15), rgba(16, 185, 129, 0.1))';
+            } else {
+                cloudStatus.innerHTML = '<span class="dot"></span> 本地模式';
+                cloudStatus.style.color = '#f59e0b';
+                cloudStatus.style.background = 'linear-gradient(135deg, rgba(245, 158, 11, 0.15), rgba(245, 158, 11, 0.1))';
+                document.getElementById('storageStatus').textContent = '仅本地缓存';
+            }
+        }
+        
+        // ============================================
+        // IndexedDB 数据库管理（离线缓存）
+        // ============================================
+        const DB_NAME = 'PortfolioDB';
+        const DB_VERSION = 1;
+        const STORE_NAME = 'images';
+        let db = null;
+
+        async function initIndexedDB() {
+            return new Promise((resolve, reject) => {
+                const request = indexedDB.open(DB_NAME, DB_VERSION);
+                
+                request.onerror = (event) => {
+                    console.error('IndexedDB 打开失败:', event);
+                    reject(event);
+                };
+                
+                request.onsuccess = (event) => {
+                    db = event.target.result;
+                    console.log('IndexedDB 初始化成功');
+                    resolve(db);
+                };
+                
+                request.onupgradeneeded = (event) => {
+                    const database = event.target.result;
+                    if (!database.objectStoreNames.contains(STORE_NAME)) {
+                        database.createObjectStore(STORE_NAME, { keyPath: 'id' });
+                    }
+                };
+            });
+        }
+
+        async function saveImageToIndexedDB(id, blob) {
+            return new Promise((resolve, reject) => {
+                if (!db) {
+                    reject(new Error('Database not initialized'));
+                    return;
+                }
+                
+                const transaction = db.transaction([STORE_NAME], 'readwrite');
+                const store = transaction.objectStore(STORE_NAME);
+                const request = store.put({ id, blob, timestamp: Date.now() });
+                
+                request.onsuccess = () => resolve();
+                request.onerror = (e) => reject(e);
+            });
+        }
+
+        async function getImageFromIndexedDB(id) {
+            return new Promise((resolve, reject) => {
+                if (!db) {
+                    reject(new Error('Database not initialized'));
+                    return;
+                }
+                
+                const transaction = db.transaction([STORE_NAME], 'readonly');
+                const store = transaction.objectStore(STORE_NAME);
+                const request = store.get(id);
+                
+                request.onsuccess = () => resolve(request.result);
+                request.onerror = (e) => reject(e);
+            });
+        }
+
+        async function deleteImageFromIndexedDB(id) {
+            return new Promise((resolve, reject) => {
+                if (!db) {
+                    reject(new Error('Database not initialized'));
+                    return;
+                }
+                
+                const transaction = db.transaction([STORE_NAME], 'readwrite');
+                const store = transaction.objectStore(STORE_NAME);
+                const request = store.delete(id);
+                
+                request.onsuccess = () => resolve();
+                request.onerror = (e) => reject(e);
+            });
+        }
+        
+        // ============================================
+        // 云端存储操作
+        // ============================================
+        
+        // 上传文件到 Supabase Storage
+        async function uploadToCloud(fileName, file, onProgress) {
+            if (!isCloudConnected || !supabase) {
+                throw new Error('云端未连接');
+            }
+            
+            const filePath = `${Date.now()}_${fileName}`;
+            
+            const { data, error } = await supabase.storage
+                .from(BUCKET_NAME)
+                .upload(filePath, file, {
+                    cacheControl: '3600',
+                    upsert: false,
+                    onUploadProgress: (progress) => {
+                        if (onProgress) {
+                            onProgress(Math.round((progress.loaded / progress.total) * 100));
+                        }
+                    }
+                });
+            
+            if (error) {
+                console.error('云端上传失败:', error);
+                throw error;
+            }
+            
+            // 获取公开访问URL
+            const { data: urlData } = supabase.storage
+                .from(BUCKET_NAME)
+                .getPublicUrl(filePath);
+            
+            return {
+                path: filePath,
+                url: urlData.publicUrl
+            };
+        }
+        
+        // 从云端删除文件
+        async function deleteFromCloud(filePath) {
+            if (!isCloudConnected || !supabase) {
+                return;
+            }
+            
+            const { error } = await supabase.storage
+                .from(BUCKET_NAME)
+                .remove([filePath]);
+            
+            if (error) {
+                console.error('云端删除失败:', error);
+            }
+        }
+        
+        // 从云端获取文件 URL
+        function getCloudFileUrl(path) {
+            if (!supabase) return null;
+            const { data } = supabase.storage
+                .from(BUCKET_NAME)
+                .getPublicUrl(path);
+            return data.publicUrl;
+        }
+        
+        // 显示上传进度
+        function showUploadProgress(percent, text) {
+            const progress = document.getElementById('uploadProgress');
+            const fill = document.getElementById('uploadProgressFill');
+            const textEl = document.getElementById('uploadProgressText');
+            
+            progress.classList.add('active');
+            fill.style.width = percent + '%';
+            textEl.textContent = text || '上传中... ' + percent + '%';
+        }
+        
+        function hideUploadProgress() {
+            document.getElementById('uploadProgress').classList.remove('active');
+        }
+        
+        // ============================================
+        // 数据存储键名
+        // ============================================
+        const STORAGE_KEYS = {
+            WORKS: 'portfolio_works_data',
+            SETTINGS: 'portfolio_settings',
+            CATEGORIES: 'portfolio_custom_categories'
+        };
+        
+        const defaultWorksData = [
+            {
+                id: 1,
+                title: "城市建筑摄影系列",
+                category: "image",
+                subcategory: "摄像",
+                type: "image",
+                description: "城市建筑线条与光影的探索",
+                preview: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80",
+                isExternal: true
+            },
+            {
+                id: 2,
+                title: "品牌视觉识别手册",
+                category: "text",
+                subcategory: "品牌策划",
+                type: "document",
+                description: "为环保品牌设计的完整VI系统",
+                preview: "brand-guide.pdf"
+            },
+            {
+                id: 3,
+                title: "纪录片《手艺人生》",
+                category: "video",
+                subcategory: "导演",
+                type: "video",
+                description: "记录传统手工艺人的坚守与传承",
+                preview: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4",
+                isExternal: true
+            },
+            {
+                id: 4,
+                title: "环保主题海报设计",
+                category: "image",
+                subcategory: "海报",
+                type: "image",
+                description: "呼吁保护海洋生态的视觉设计",
+                preview: "https://images.unsplash.com/photo-1589939705384-5185137a7f0f?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80",
+                isExternal: true
+            },
+            {
+                id: 5,
+                title: "新闻报道策划方案",
+                category: "text",
+                subcategory: "新闻报道策划",
+                type: "document",
+                description: "乡村振兴系列报道的完整策划案",
+                preview: "news-plan.docx"
+            },
+            {
+                id: 6,
+                title: "音乐短片《晨光》",
+                category: "video",
+                subcategory: "剪辑",
+                type: "video",
+                description: "独立音乐人MV剪辑作品",
+                preview: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4",
+                isExternal: true
+            },
+            {
+                id: 7,
+                title: "国际摄影大赛金奖",
+                category: "award",
+                subcategory: "获奖作品",
+                type: "image",
+                description: "2025国际自然摄影大赛金奖作品",
+                preview: "https://images.unsplash.com/photo-1518837695005-2083093ee35b?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80",
+                isExternal: true
+            },
+            {
+                id: 8,
+                title: "AI生成艺术实验",
+                category: "other",
+                subcategory: "AI作品",
+                type: "image",
+                description: "基于Stable Diffusion的创意图像生成",
+                preview: "https://images.unsplash.com/photo-1682687220945-922198770e60?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80",
+                isExternal: true
+            }
+        ];
+        
+        const categoryMap = {
+            'all': '全部作品',
+            'image': '图像类',
+            'video': '影音类',
+            'text': '文字类',
+            'award': '获奖作品',
+            'other': '其他'
+        };
+        
+        let subcategoryMap = {
+            '摄像': '摄像',
+            '海报': '海报',
+            '摄影': '摄影',
+            '剪辑': '剪辑',
+            '导演': '导演',
+            'AU音频': 'AU音频',
+            '品牌策划': '品牌策划',
+            '新闻报道策划': '新闻报道策划',
+            '报道': '报道',
+            '制作': '新闻制作',
+            '获奖作品': '获奖作品',
+            'AI作品': 'AI作品'
+        };
+        
+        const categoryToSubcategories = {
+            'image': ['摄像', '海报'],
+            'video': ['摄影', '剪辑', '导演', 'AU音频'],
+            'text': ['品牌策划', '新闻报道策划', '报道', '制作'],
+            'award': ['获奖作品'],
+            'other': ['AI作品']
+        };
+        
+        const themeNames = {
+            'default': '星空紫',
+            'dark': '暗夜',
+            'grand': '大气',
+            'fashion': '时尚',
+            'fresh': '清新',
+            'retro': '复古',
+            'sunset': '日落'
+        };
+        
+        // ============================================
+        // DOM元素
+        // ============================================
+        const worksGrid = document.getElementById('worksGrid');
+        const emptyState = document.getElementById('emptyState');
+        const categoryTags = document.getElementById('categoryTags');
+        const fileInput = document.getElementById('fileInput');
+        const uploadOptions = document.querySelectorAll('.upload-option');
+        
+        const searchContainer = document.getElementById('searchContainer');
+        const searchBtn = document.getElementById('searchBtn');
+        const searchInput = document.getElementById('searchInput');
+        
+        const sortSelect = document.getElementById('sortSelect');
+        
+        const settingsBtn = document.getElementById('settingsBtn');
+        const settingsPanel = document.getElementById('settingsPanel');
+        const closeSettings = document.getElementById('closeSettings');
+        const passwordProtection = document.getElementById('passwordProtection');
+        const currentPasswordInput = document.getElementById('currentPassword');
+        const newPasswordInput = document.getElementById('newPassword');
+        const confirmPasswordInput = document.getElementById('confirmPassword');
+        const savePasswordBtn = document.getElementById('savePassword');
+        const passwordStatus = document.getElementById('passwordStatus');
+        const currentThemeSpan = document.getElementById('currentTheme');
+        const worksCountSpan = document.getElementById('worksCount');
+        
+        const themeOptions = document.querySelectorAll('.theme-option');
+        
+        const passwordOverlay = document.getElementById('passwordOverlay');
+        const passwordDialogTitle = document.getElementById('passwordDialogTitle');
+        const passwordInput = document.getElementById('passwordInput');
+        const passwordError = document.getElementById('passwordError');
+        const cancelPasswordBtn = document.getElementById('cancelPassword');
+        const confirmPasswordBtnElement = document.getElementById('confirmPasswordBtn');
+        
+        const addCustomCategoryBtn = document.getElementById('addCustomCategory');
+        const customCategoryDialog = document.getElementById('customCategoryDialog');
+        const customCategoryInput = document.getElementById('customCategoryInput');
+        const cancelCustomCategoryBtn = document.getElementById('cancelCustomCategory');
+        const confirmCustomCategoryBtn = document.getElementById('confirmCustomCategory');
+        
+        const exportDataBtn = document.getElementById('exportData');
+        const clearDataBtn = document.getElementById('clearData');
+        
+        const toast = document.getElementById('toast');
+        
+        const imagePreviewOverlay = document.getElementById('imagePreviewOverlay');
+        const imagePreviewClose = document.getElementById('imagePreviewClose');
+        const imagePreviewContent = document.getElementById('imagePreviewContent');
+        const previewTitle = document.getElementById('previewTitle');
+        const previewCategory = document.getElementById('previewCategory');
+        const previewDescription = document.getElementById('previewDescription');
+        
+        // ============================================
+        // 状态变量
+        // ============================================
+        let worksData = [];
+        let currentCategory = 'all';
+        let currentSort = 'date-desc';
+        let searchQuery = '';
+        let password = '0000';
+        let isPasswordProtected = true;
+        let pendingAction = null;
+        let customCategories = [];
+        let imageBlobCache = {};
+        
+        // ============================================
+        // 工具函数
+        // ============================================
+        
+        function showToast(message, duration = 3000) {
+            toast.textContent = message;
+            toast.classList.add('show');
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, duration);
+        }
+        
+        function saveToStorage() {
+            const worksMeta = worksData.map(w => {
+                const { preview, isExternal, cloudPath, ...meta } = w;
+                return meta;
+            });
+            
+            localStorage.setItem(STORAGE_KEYS.WORKS, JSON.stringify(worksMeta));
+            localStorage.setItem(STORAGE_KEYS.SETTINGS, JSON.stringify({
+                password: password,
+                isPasswordProtected: isPasswordProtected,
+                currentTheme: document.body.className.replace('theme-', '') || 'default',
+                currentSort: currentSort
+            }));
+            localStorage.setItem(STORAGE_KEYS.CATEGORIES, JSON.stringify(customCategories));
+        }
+        
+        async function loadFromStorage() {
+            const savedWorks = localStorage.getItem(STORAGE_KEYS.WORKS);
+            if (savedWorks) {
+                const worksMeta = JSON.parse(savedWorks);
+                worksData = await rebuildWorksWithImages(worksMeta);
+            } else {
+                worksData = [...defaultWorksData];
+                saveToStorage();
+            }
+            
+            const savedSettings = localStorage.getItem(STORAGE_KEYS.SETTINGS);
+            if (savedSettings) {
+                const settings = JSON.parse(savedSettings);
+                password = settings.password || '0000';
+                isPasswordProtected = settings.isPasswordProtected !== undefined ? settings.isPasswordProtected : true;
+                currentSort = settings.currentSort || 'date-desc';
+                sortSelect.value = currentSort;
+                
+                if (settings.currentTheme && settings.currentTheme !== 'default') {
+                    document.body.className = 'theme-' + settings.currentTheme;
+                    themeOptions.forEach(opt => {
+                        opt.classList.toggle('active', opt.dataset.theme === settings.currentTheme);
+                    });
+                    currentThemeSpan.textContent = themeNames[settings.currentTheme] || '星空紫';
+                    currentThemeSpan.style.background = 'linear-gradient(135deg, var(--primary-color), var(--accent-color))';
+                    currentThemeSpan.style.webkitBackgroundClip = 'text';
+                    currentThemeSpan.style.webkitTextFillColor = 'transparent';
+                }
+            }
+            
+            const savedCategories = localStorage.getItem(STORAGE_KEYS.CATEGORIES);
+            if (savedCategories) {
+                customCategories = JSON.parse(savedCategories);
+                renderCustomCategories();
+            }
+            
+            passwordProtection.checked = isPasswordProtected;
+            updateSystemStatus();
+        }
+        
+        async function rebuildWorksWithImages(worksMeta) {
+            const rebuiltWorks = [];
+            
+            for (const meta of worksMeta) {
+                if (meta.type === 'image' && !meta.isExternal) {
+                    // 云端图片优先
+                    if (meta.cloudPath) {
+                        const cloudUrl = getCloudFileUrl(meta.cloudPath);
+                        if (cloudUrl) {
+                            rebuiltWorks.push({
+                                ...meta,
+                                preview: cloudUrl,
+                                fromCloud: true
+                            });
+                            continue;
+                        }
+                    }
+                    
+                    // 本地缓存次之
+                    try {
+                        const data = await getImageFromIndexedDB(meta.id);
+                        if (data && data.blob) {
+                            imageBlobCache[meta.id] = URL.createObjectURL(data.blob);
+                            rebuiltWorks.push({
+                                ...meta,
+                                preview: imageBlobCache[meta.id],
+                                idbBlob: data.blob
+                            });
+                        } else {
+                            rebuiltWorks.push({
+                                ...meta,
+                                preview: '',
+                                missingImage: true
+                            });
+                        }
+                    } catch (e) {
+                        rebuiltWorks.push({
+                            ...meta,
+                            preview: '',
+                            missingImage: true
+                        });
+                    }
+                } else {
+                    rebuiltWorks.push(meta);
+                }
+            }
+            
+            return rebuiltWorks;
+        }
+        
+        function updateSystemStatus() {
+            passwordStatus.textContent = isPasswordProtected ? '已启用' : '已禁用';
+            passwordStatus.style.color = isPasswordProtected ? '#10b981' : '#ef4444';
+            worksCountSpan.textContent = worksData.length;
+        }
+        
+        function sortWorks(works) {
+            const sorted = [...works];
+            switch (currentSort) {
+                case 'date-desc':
+                    sorted.sort((a, b) => new Date(b.date || 0) - new Date(a.date || 0));
+                    break;
+                case 'date-asc':
+                    sorted.sort((a, b) => new Date(a.date || 0) - new Date(b.date || 0));
+                    break;
+                case 'name-asc':
+                    sorted.sort((a, b) => a.title.localeCompare(b.title, 'zh-CN'));
+                    break;
+                case 'name-desc':
+                    sorted.sort((a, b) => b.title.localeCompare(a.title, 'zh-CN'));
+                    break;
+            }
+            return sorted;
+        }
+        
+        function searchWorks(works) {
+            if (!searchQuery) return works;
+            const query = searchQuery.toLowerCase();
+            return works.filter(work => 
+                work.title.toLowerCase().includes(query) ||
+                work.description.toLowerCase().includes(query) ||
+                (subcategoryMap[work.subcategory] || work.subcategory).toLowerCase().includes(query)
+            );
+        }
+        
+        function renderCustomCategories() {
+            const existingCustom = categoryTags.querySelectorAll('.category-tag.custom');
+            existingCustom.forEach(tag => tag.remove());
+            
+            customCategories.forEach(cat => {
+                const tag = document.createElement('span');
+                tag.className = 'category-tag custom';
+                tag.dataset.category = cat.id;
+                tag.innerHTML = `${cat.name} <i class="fas fa-times" style="margin-left: 5px; font-size: 0.8em; opacity: 0.7;" title="删除分类"></i>`;
+                
+                tag.querySelector('i').addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    if (confirm(`确定要删除"${cat.name}"分类吗？`)) {
+                        customCategories = customCategories.filter(c => c.id !== cat.id);
+                        saveToStorage();
+                        renderCustomCategories();
+                        showToast('分类已删除');
+                    }
+                });
+                
+                tag.addEventListener('click', (e) => {
+                    if (e.target.tagName !== 'I') {
+                        filterByCategory(cat.id);
+                    }
+                });
+                
+                categoryTags.insertBefore(tag, addCustomCategoryBtn);
+            });
+        }
+        
+        function filterByCategory(category) {
+            currentCategory = category;
+            
+            categoryTags.querySelectorAll('.category-tag').forEach(tag => {
+                tag.classList.toggle('active', tag.dataset.category === category);
+            });
+            
+            renderWorks();
+        }
+        
+        function renderWorks() {
+            worksGrid.innerHTML = '';
+            
+            let filteredWorks = currentCategory === 'all' 
+                ? [...worksData] 
+                : worksData.filter(work => work.category === currentCategory);
+            
+            filteredWorks = searchWorks(filteredWorks);
+            filteredWorks = sortWorks(filteredWorks);
+            
+            if (filteredWorks.length === 0) {
+                emptyState.style.display = 'block';
+                if (searchQuery) {
+                    emptyState.querySelector('h3').textContent = '未找到匹配的作品';
+                    emptyState.querySelector('p').textContent = '请尝试其他搜索关键词 ✨';
+                } else {
+                    emptyState.querySelector('h3').textContent = '此分类暂无作品';
+                    emptyState.querySelector('p').textContent = '点击上方上传区域添加您的第一个作品 ✨';
+                }
+            } else {
+                emptyState.style.display = 'none';
+                
+                filteredWorks.forEach(work => {
+                    const workCard = createWorkCard(work);
+                    worksGrid.appendChild(workCard);
+                });
+            }
+        }
+        
+        function createWorkCard(work) {
+            const card = document.createElement('div');
+            card.className = 'work-card';
+            card.setAttribute('data-id', work.id);
+            card.setAttribute('data-category', work.category);
+            card.setAttribute('data-subcategory', work.subcategory);
+            
+            let previewContent = '';
+            if (work.type === 'image') {
+                if (work.isExternal || work.fromCloud) {
+                    previewContent = `<img src="${work.preview}" alt="${work.title}" loading="lazy" onerror="this.parentElement.innerHTML='<div style=\\'display:flex;align-items:center;justify-content:center;height:100%;color:var(--text-light);\\'><i class=\\'fas fa-image\\' style=\\'font-size:3rem;opacity:0.5;\\'></i><span style=\\'margin-left:10px;\\'>图片加载失败</span></div>'">`;
+                } else if (work.missingImage) {
+                    previewContent = `<div style="display:flex;align-items:center;justify-content:center;height:100%;color:var(--text-light);">
+                        <i class="fas fa-image" style="font-size:3rem;opacity:0.5;"></i>
+                        <span style="margin-left:10px;">图片已丢失</span>
+                    </div>`;
+                } else {
+                    previewContent = `<img src="${work.preview}" alt="${work.title}" loading="lazy">`;
+                }
+            } else if (work.type === 'video') {
+                previewContent = `<video controls><source src="${work.preview}" type="video/mp4">您的浏览器不支持视频播放</video>`;
+            } else if (work.type === 'document') {
+                previewContent = `<div class="document-preview"><i class="fas fa-file-pdf"></i><div class="doc-title">${work.preview}</div></div>`;
+            }
+            
+            card.innerHTML = `
+                <div class="work-preview">${previewContent}</div>
+                <div class="work-info">
+                    <span class="work-category" data-id="${work.id}">🏷️ ${subcategoryMap[work.subcategory] || work.subcategory}</span>
+                    <input type="text" class="work-title-input" value="${work.title}" placeholder="请输入作品名称">
+                    <p class="work-description">${work.description}</p>
+                </div>
+                <div class="work-meta">
+                    <span></span>
+                    <span>${categoryMap[work.category]}</span>
+                </div>
+                <div class="work-controls">
+                    <button class="icon-btn" title="编辑"><i class="fas fa-edit"></i></button>
+                    <button class="icon-btn delete-btn" title="删除" data-id="${work.id}"><i class="fas fa-trash"></i></button>
+                </div>
+            `;
+            
+            card.addEventListener('click', function(e) {
+                if (e.target.closest('.work-controls') || e.target.closest('.work-title-input')) return;
+                openImagePreview(work);
+            });
+            
+            const deleteBtn = card.querySelector('.delete-btn');
+            deleteBtn.addEventListener('click', function() {
+                const workId = parseInt(this.getAttribute('data-id'));
+                deleteWork(workId);
+            });
+            
+            const categorySpan = card.querySelector('.work-category');
+            categorySpan.addEventListener('click', function(e) {
+                e.stopPropagation();
+                const workId = parseInt(this.getAttribute('data-id'));
+                const workItem = worksData.find(w => w.id === workId);
+                if (workItem) editSubcategory(workItem);
+            });
+            
+            const titleInput = card.querySelector('.work-title-input');
+            titleInput.addEventListener('input', function(e) {
+                e.stopPropagation();
+                const workId = parseInt(card.getAttribute('data-id'));
+                const workItem = worksData.find(w => w.id === workId);
+                if (workItem) {
+                    workItem.title = this.value;
+                    saveToStorage();
+                }
+            });
+            
+            titleInput.addEventListener('click', function(e) {
+                e.stopPropagation();
+            });
+            
+            const editBtn = card.querySelector('.fa-edit').closest('button');
+            editBtn.addEventListener('click', function(e) {
+                e.stopPropagation();
+                titleInput.focus();
+            });
+            
+            return card;
+        }
+        
+        function openImagePreview(work) {
+            if (work.type === 'image') {
+                if (work.isExternal || work.fromCloud) {
+                    imagePreviewContent.innerHTML = `<img src="${work.preview}" alt="${work.title}">`;
+                } else if (work.missingImage) {
+                    imagePreviewContent.innerHTML = `<div style="display:flex;align-items:center;justify-content:center;width:600px;height:400px;background:rgba(255,255,255,0.1);border-radius:12px;color:rgba(255,255,255,0.5);"><i class="fas fa-image" style="font-size:4rem;"></i><span style="margin-left:15px;">图片已丢失，请重新上传</span></div>`;
+                } else {
+                    imagePreviewContent.innerHTML = `<img src="${work.preview}" alt="${work.title}">`;
+                }
+            } else if (work.type === 'video') {
+                imagePreviewContent.innerHTML = `<video controls autoplay><source src="${work.preview}" type="video/mp4">您的浏览器不支持视频播放</video>`;
+            } else if (work.type === 'document') {
+                imagePreviewContent.innerHTML = `<div style="display:flex;flex-direction:column;align-items:center;justify-content:center;width:500px;padding:60px;background:rgba(255,255,255,0.1);border-radius:12px;color:white;"><i class="fas fa-file-alt" style="font-size:5rem;margin-bottom:20px;"></i><h3 style="font-size:1.5rem;margin-bottom:10px;">${work.preview}</h3><p style="color:rgba(255,255,255,0.7);">文档类型文件无法预览</p></div>`;
+            }
+            
+            previewTitle.textContent = work.title;
+            previewCategory.innerHTML = `🏷️ ${subcategoryMap[work.subcategory] || work.subcategory} · ${categoryMap[work.category]}`;
+            previewDescription.textContent = work.description;
+            
+            imagePreviewOverlay.classList.add('active');
+            document.body.style.overflow = 'hidden';
+        }
+        
+        function closeImagePreview() {
+            imagePreviewOverlay.classList.remove('active');
+            document.body.style.overflow = '';
+            const video = imagePreviewContent.querySelector('video');
+            if (video) video.pause();
+        }
+        
+        imagePreviewClose.addEventListener('click', closeImagePreview);
+        imagePreviewOverlay.addEventListener('click', function(e) {
+            if (e.target === imagePreviewOverlay) closeImagePreview();
+        });
+        
+        function editSubcategory(work) {
+            const subcategories = categoryToSubcategories[work.category] || Object.keys(subcategoryMap);
+            
+            const menu = document.createElement('div');
+            menu.style.cssText = `position:fixed;background:var(--panel-bg);border-radius:14px;box-shadow:0 10px 40px rgba(0,0,0,0.2);padding:12px 0;z-index:5100;min-width:180px;max-height:320px;overflow-y:auto;`;
+            
+            subcategories.forEach(subcat => {
+                const item = document.createElement('div');
+                item.textContent = subcategoryMap[subcat] || subcat;
+                item.style.cssText = 'padding:12px 22px;cursor:pointer;transition:background 0.2s;color:var(--text-dark);';
+                item.addEventListener('mouseenter', () => item.style.backgroundColor = 'rgba(99, 102, 241, 0.1)');
+                item.addEventListener('mouseleave', () => item.style.backgroundColor = 'transparent');
+                item.addEventListener('click', () => {
+                    work.subcategory = subcat;
+                    saveToStorage();
+                    renderWorks();
+                    menu.remove();
+                    showToast('✨ 分类已更新');
+                });
+                menu.appendChild(item);
+            });
+            
+            const customItem = document.createElement('div');
+            customItem.innerHTML = '<i class="fas fa-plus"></i> 自定义分类';
+            customItem.style.cssText = 'padding:12px 22px;cursor:pointer;transition:background 0.2s;color:var(--accent-color);border-top:1px solid var(--light-gray);margin-top:8px;';
+            customItem.addEventListener('click', () => { menu.remove(); showCustomSubcategoryDialog(work); });
+            menu.appendChild(customItem);
+            
+            const categorySpan = document.querySelector(`.work-category[data-id="${work.id}"]`);
+            const rect = categorySpan.getBoundingClientRect();
+            menu.style.top = `${rect.bottom + window.scrollY + 8}px`;
+            menu.style.left = `${Math.min(rect.left + window.scrollX, window.innerWidth - 220)}px`;
+            
+            document.body.appendChild(menu);
+            
+            const closeMenu = (e) => {
+                if (!menu.contains(e.target) && e.target !== categorySpan) {
+                    menu.remove();
+                    document.removeEventListener('click', closeMenu);
+                }
+            };
+            setTimeout(() => document.addEventListener('click', closeMenu), 0);
+        }
+        
+        function showCustomSubcategoryDialog(work) {
+            const input = prompt('请输入新的二级分类名称：');
+            if (input && input.trim()) {
+                const newSubcat = input.trim();
+                subcategoryMap[newSubcat] = newSubcat;
+                work.subcategory = newSubcat;
+                saveToStorage();
+                renderWorks();
+                showToast('✨ 已创建新分类：' + newSubcat);
+            }
+        }
+        
+        function deleteWork(workId) {
+            if (isPasswordProtected) {
+                showPasswordDialog('删除作品', async () => { await performDelete(workId); });
+            } else {
+                if (confirm('确定要删除这个作品吗？')) performDelete(workId);
+            }
+        }
+        
+        async function performDelete(workId) {
+            const card = document.querySelector(`.work-card[data-id="${workId}"]`);
+            if (card) {
+                card.style.opacity = '0';
+                card.style.transform = 'translateY(30px) scale(0.9)';
+                
+                setTimeout(async () => {
+                    const index = worksData.findIndex(w => w.id === workId);
+                    if (index !== -1) {
+                        const work = worksData[index];
+                        
+                        // 从云端删除
+                        if (work.cloudPath) {
+                            await deleteFromCloud(work.cloudPath);
+                        }
+                        
+                        // 删除本地缓存
+                        if (imageBlobCache[workId]) {
+                            URL.revokeObjectURL(imageBlobCache[workId]);
+                            delete imageBlobCache[workId];
+                            try { await deleteImageFromIndexedDB(workId); } catch(e) {}
+                        }
+                        
+                        worksData.splice(index, 1);
+                    }
+                    saveToStorage();
+                    renderWorks();
+                    updateSystemStatus();
+                    showToast('✨ 作品已删除');
+                }, 300);
+            }
+        }
+        
+        function showPasswordDialog(action, callback) {
+            passwordDialogTitle.textContent = `🔐 请输入密码以${action}`;
+            passwordInput.value = '';
+            passwordError.textContent = '';
+            passwordOverlay.classList.add('active');
+            
+            pendingAction = { action: action, callback: callback };
+            passwordInput.focus();
+        }
+        
+        function verifyPassword(inputPassword) {
+            return inputPassword === password;
+        }
+        
+        // ============================================
+        // 事件监听器
+        // ============================================
+        
+        searchBtn.addEventListener('click', () => {
+            searchContainer.classList.toggle('active');
+            if (searchContainer.classList.contains('active')) {
+                searchInput.focus();
+            } else {
+                searchInput.value = '';
+                searchQuery = '';
+                renderWorks();
+            }
+        });
+        
+        searchInput.addEventListener('input', (e) => {
+            searchQuery = e.target.value;
+            renderWorks();
+        });
+        
+        sortSelect.addEventListener('change', (e) => {
+            currentSort = e.target.value;
+            saveToStorage();
+            renderWorks();
+        });
+        
+        themeOptions.forEach(option => {
+            option.addEventListener('click', function() {
+                const theme = this.dataset.theme;
+                themeOptions.forEach(opt => opt.classList.remove('active'));
+                this.classList.add('active');
+                document.body.className = theme === 'default' ? '' : 'theme-' + theme;
+                currentThemeSpan.textContent = themeNames[theme];
+                currentThemeSpan.style.background = 'linear-gradient(135deg, var(--primary-color), var(--accent-color))';
+                currentThemeSpan.style.webkitBackgroundClip = 'text';
+                currentThemeSpan.style.webkitTextFillColor = 'transparent';
+                saveToStorage();
+                showToast(`🎨 已切换到${themeNames[theme]}主题`);
+            });
+        });
+        
+        categoryTags.addEventListener('click', (e) => {
+            const tag = e.target.closest('.category-tag');
+            if (tag && tag.dataset.category && !tag.classList.contains('add-custom')) {
+                filterByCategory(tag.dataset.category);
+            }
+        });
+        
+        addCustomCategoryBtn.addEventListener('click', () => {
+            customCategoryDialog.classList.add('active');
+            customCategoryInput.value = '';
+            customCategoryInput.focus();
+        });
+        
+        cancelCustomCategoryBtn.addEventListener('click', () => {
+            customCategoryDialog.classList.remove('active');
+        });
+        
+        confirmCustomCategoryBtn.addEventListener('click', () => {
+            const name = customCategoryInput.value.trim();
+            if (name) {
+                const id = 'custom_' + Date.now();
+                customCategories.push({ id, name });
+                saveToStorage();
+                renderCustomCategories();
+                customCategoryDialog.classList.remove('active');
+                showToast('✨ 分类已添加：' + name);
+            } else {
+                showToast('请输入分类名称');
+            }
+        });
+        
+        uploadOptions.forEach(option => {
+            option.addEventListener('click', function() {
+                const type = this.getAttribute('data-type');
+                
+                if (isPasswordProtected) {
+                    showPasswordDialog('上传作品', () => { triggerFileInput(type); });
+                } else {
+                    triggerFileInput(type);
+                }
+            });
+        });
+        
+        function triggerFileInput(type) {
+            if (type === 'image') fileInput.setAttribute('accept', 'image/*');
+            else if (type === 'video') fileInput.setAttribute('accept', 'video/*');
+            else if (type === 'document') fileInput.setAttribute('accept', '.pdf,.doc,.docx,.txt');
+            fileInput.click();
+        }
+        
+        fileInput.addEventListener('change', async function(e) {
+            if (e.target.files.length === 0) return;
+            
+            const file = e.target.files[0];
+            const fileType = getFileType(file.type);
+            
+            const newId = worksData.length > 0 ? Math.max(...worksData.map(w => w.id)) + 1 : 1;
+            
+            const newWork = {
+                id: newId,
+                title: file.name.replace(/\.[^/.]+$/, ""),
+                category: fileType === 'image' ? 'image' : fileType === 'video' ? 'video' : 'text',
+                subcategory: fileType === 'image' ? '摄像' : fileType === 'video' ? '剪辑' : '品牌策划',
+                type: fileType,
+                description: '新上传的作品',
+                preview: '',
+                isExternal: false,
+                cloudPath: null
+            };
+            
+            try {
+                showUploadProgress(0, '准备上传...');
+                
+                // 保存到本地缓存
+                if (fileType === 'image') {
+                    await saveImageToIndexedDB(newId, file);
+                    imageBlobCache[newId] = URL.createObjectURL(file);
+                    newWork.preview = imageBlobCache[newId];
+                    newWork.idbBlob = file;
+                }
+                
+                // 上传到云端
+                if (isCloudConnected) {
+                    const cloudResult = await uploadToCloud(file.name, file, (percent) => {
+                        showUploadProgress(percent, `上传中... ${percent}%`);
+                    });
+                    newWork.cloudPath = cloudResult.path;
+                    newWork.preview = cloudResult.url;
+                    newWork.fromCloud = true;
+                    showToast('☁️ 已上传至云端');
+                } else {
+                    showToast('⚠️ 云端未连接，仅保存在本地');
+                }
+                
+                worksData.unshift(newWork);
+                saveToStorage();
+                fileInput.value = '';
+                renderWorks();
+                updateSystemStatus();
+                showToast('✨ 作品上传成功！');
+                
+            } catch (err) {
+                console.error('上传失败:', err);
+                showToast('❌ 上传失败：' + (err.message || '请检查网络连接'));
+            } finally {
+                hideUploadProgress();
+            }
+        });
+        
+        function getFileType(mimeType) {
+            if (mimeType.startsWith('image/')) return 'image';
+            if (mimeType.startsWith('video/')) return 'video';
+            return 'document';
+        }
+        
+        settingsBtn.addEventListener('click', () => {
+            settingsPanel.classList.add('active');
+        });
+        
+        closeSettings.addEventListener('click', () => {
+            settingsPanel.classList.remove('active');
+        });
+        
+        savePasswordBtn.addEventListener('click', () => {
+            const currentPassword = currentPasswordInput.value;
+            const newPassword = newPasswordInput.value;
+            const confirmPassword = confirmPasswordInput.value;
+            
+            if (currentPassword !== password) {
+                showToast('❌ 当前密码错误！');
+                return;
+            }
+            
+            if (newPassword.length !== 4 || !/^\d+$/.test(newPassword)) {
+                showToast('❌ 新密码必须是4位数字！');
+                return;
+            }
+            
+            if (newPassword !== confirmPassword) {
+                showToast('❌ 两次输入的密码不一致！');
+                return;
+            }
+            
+            password = newPassword;
+            saveToStorage();
+            
+            currentPasswordInput.value = '';
+            newPasswordInput.value = '';
+            confirmPasswordInput.value = '';
+            
+            updateSystemStatus();
+            showToast('✅ 密码设置已保存！');
+        });
+        
+        passwordProtection.addEventListener('click', function(e) {
+            e.preventDefault();
+            
+            const targetState = !isPasswordProtected;
+            const action = targetState ? '启用密码保护' : '取消密码保护';
+            
+            showPasswordDialog(action, () => {
+                isPasswordProtected = targetState;
+                passwordProtection.checked = isPasswordProtected;
+                saveToStorage();
+                updateSystemStatus();
+                
+                const message = isPasswordProtected ? '🔐 密码保护已启用' : '🔓 密码保护已禁用';
+                showToast(message);
+            });
+        });
+        
+        cancelPasswordBtn.addEventListener('click', () => {
+            passwordOverlay.classList.remove('active');
+            pendingAction = null;
+        });
+        
+        confirmPasswordBtnElement.addEventListener('click', () => {
+            const inputPassword = passwordInput.value;
+            
+            if (inputPassword.length !== 4 || !/^\d+$/.test(inputPassword)) {
+                passwordError.textContent = '密码必须是4位数字';
+                return;
+            }
+            
+            if (!verifyPassword(inputPassword)) {
+                passwordError.textContent = '❌ 密码错误，请重试';
+                return;
+            }
+            
+            passwordOverlay.classList.remove('active');
+            
+            if (pendingAction && pendingAction.callback) {
+                pendingAction.callback();
+            }
+            
+            pendingAction = null;
+        });
+        
+        passwordInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') confirmPasswordBtnElement.click();
+        });
+        
+        exportDataBtn.addEventListener('click', async () => {
+            const exportData = {
+                works: [],
+                settings: { password: password, isPasswordProtected: isPasswordProtected },
+                categories: customCategories,
+                exportDate: new Date().toISOString()
+            };
+            
+            for (const work of worksData) {
+                if (work.type === 'image' && !work.isExternal && work.idbBlob) {
+                    const reader = new FileReader();
+                    const base64 = await new Promise((resolve) => {
+                        reader.onload = () => resolve(reader.result);
+                        reader.readAsDataURL(work.idbBlob);
+                    });
+                    exportData.works.push({ ...work, blobBase64: base64 });
+                } else {
+                    exportData.works.push(work);
+                }
+            }
+            
+            const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'portfolio_backup.json';
+            a.click();
+            URL.revokeObjectURL(url);
+            
+            showToast('📤 数据已导出');
+        });
+        
+        clearDataBtn.addEventListener('click', async () => {
+            if (isPasswordProtected) {
+                showPasswordDialog('清除所有数据', async () => {
+                    if (confirm('⚠️ 确定要清除所有数据吗？此操作不可恢复！')) {
+                        try {
+                            const transaction = db.transaction([STORE_NAME], 'readwrite');
+                            const store = transaction.objectStore(STORE_NAME);
+                            store.clear();
+                        } catch (e) {}
+                        
+                        Object.values(imageBlobCache).forEach(url => URL.revokeObjectURL(url));
+                        imageBlobCache = {};
+                        
+                        localStorage.removeItem(STORAGE_KEYS.WORKS);
+                        localStorage.removeItem(STORAGE_KEYS.SETTINGS);
+                        localStorage.removeItem(STORAGE_KEYS.CATEGORIES);
+                        location.reload();
+                    }
+                });
+            } else {
+                if (confirm('⚠️ 确定要清除所有数据吗？此操作不可恢复！')) {
+                    try {
+                        const transaction = db.transaction([STORE_NAME], 'readwrite');
+                        const store = transaction.objectStore(STORE_NAME);
+                        store.clear();
+                    } catch (e) {}
+                    
+                    Object.values(imageBlobCache).forEach(url => URL.revokeObjectURL(url));
+                    imageBlobCache = {};
+                    
+                    localStorage.removeItem(STORAGE_KEYS.WORKS);
+                    localStorage.removeItem(STORAGE_KEYS.SETTINGS);
+                    localStorage.removeItem(STORAGE_KEYS.CATEGORIES);
+                    location.reload();
+                }
+            }
+        });
+        
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                if (imagePreviewOverlay.classList.contains('active')) {
+                    closeImagePreview();
+                } else if (passwordOverlay.classList.contains('active')) {
+                    cancelPasswordBtn.click();
+                } else if (settingsPanel.classList.contains('active')) {
+                    settingsPanel.classList.remove('active');
+                } else if (customCategoryDialog.classList.contains('active')) {
+                    customCategoryDialog.classList.remove('active');
+                } else if (searchContainer.classList.contains('active')) {
+                    searchContainer.classList.remove('active');
+                    searchInput.value = '';
+                    searchQuery = '';
+                    renderWorks();
+                } else {
+                    filterByCategory('all');
+                }
+            }
+            
+            if (e.ctrlKey && e.key === 'f') {
+                e.preventDefault();
+                searchContainer.classList.add('active');
+                searchInput.focus();
+            }
+        });
+        
+        passwordOverlay.addEventListener('click', (e) => {
+            if (e.target === passwordOverlay) cancelPasswordBtn.click();
+        });
+        
+        customCategoryInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') confirmCustomCategoryBtn.click();
+        });
+        
+        // ============================================
+        // 初始化
+        // ============================================
+        async function init() {
+            try {
+                // 初始化 IndexedDB
+                await initIndexedDB();
+                
+                // 初始化 Supabase
+                await initSupabase();
+                
+                // 加载数据
+                await loadFromStorage();
+                renderWorks();
+                console.log('✨ 作品集初始化完成');
+                console.log('☁️ 云端状态:', isCloudConnected ? '已连接' : '未连接（本地模式）');
+            } catch (error) {
+                console.error('初始化失败:', error);
+                showToast('❌ 初始化失败，请刷新页面重试');
+            }
+        }
+        
+        init();
+    </script>
+</body>
+</html>
